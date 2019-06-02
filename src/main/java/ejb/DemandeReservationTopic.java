@@ -19,16 +19,16 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import service.EnregistreInscription;
+import service.EnregistrerReservation;
 
 /**
- * Message-Driven Bean implementation class for: DemandeInscriptionTopic
+ * Message-Driven Bean implementation class for: DemandeReservationTopic
  */
 // On se connecte à la file d'attente InscriptionTopic
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "destination", propertyValue = "java:jboss/exported/topic/DemandeInscriptionJmsTopic"),
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Topic")}, mappedName = "DemandeInscriptionJmsTopic")
-public class DemandeInscriptionTopic implements MessageListener {
+public class DemandeReservationTopic implements MessageListener {
 
     @Resource
     private MessageDrivenContext context;
@@ -36,7 +36,7 @@ public class DemandeInscriptionTopic implements MessageListener {
     /*
      * Default constructor.
      */
-    public DemandeInscriptionTopic() {
+    public DemandeReservationTopic() {
         // TODO Auto-generated constructor stub
     }
 
@@ -48,26 +48,25 @@ public class DemandeInscriptionTopic implements MessageListener {
         boolean ok = false;
         // On gère le message récupéré dans le topic
         try {
-            // On transforme le message en demande d'inscription
+            // On transforme le message en demande de reservation
             if (message != null) {
-                System.out.println("je suis là ");
+                System.out.println("DEMANDE RESERVATION TOPIC je suis là ");
                 ObjectMessage objectMessage = (ObjectMessage) message;
-                Inscription uneInscription = (Inscription) objectMessage.getObject();
-                // On insère cette demande d'inscription dans la base de données
+                ReservationEntity uneReservation = (ReservationEntity) objectMessage.getObject();
+                // On insère cette demande de réservation dans la base de données
                 // on s'assure que l'écriture ne se fera qu'une fois.
                 message = null;
                 try {
                     // on construit un objet Entity
-                    InscriptionEntity uneInsEntity = new InscriptionEntity();
+                    ReservationEntity uneReservationEntity = new ReservationEntity();
                     // on tansfère les données reçues dans l'objet Entity
-                    uneInsEntity.setNomcandidat(uneInscription.getNomcandidat());
-                    uneInsEntity.setPrenomcandidat(uneInscription.getPrenomcandidat());
-                    uneInsEntity.setCpostal(uneInscription.getCpostal());
-                    uneInsEntity.setVille(uneInscription.getVille());
-                    uneInsEntity.setAdresse(uneInscription.getAdresse());
-                    uneInsEntity.setDatenaissance(uneInscription.getDatenaissance());
-                    EnregistreInscription uneE = new EnregistreInscription();
-                    uneE.insertionInscription(uneInsEntity);
+                    uneReservationEntity.setClient(uneReservation.getClient());
+                    uneReservationEntity.setDateEcheance(uneReservation.getDateEcheance());
+                    uneReservationEntity.setDateReservation(uneReservation.getDateReservation());
+                    uneReservationEntity.setVehicule(uneReservation.getVehicule());
+
+                    EnregistrerReservation uneE = new EnregistrerReservation();
+                    uneE.insertionReservation(uneReservationEntity);
                 } catch (NamingException er) {
                     EcritureErreur(er.getMessage());
                 } catch (MonException e) {
