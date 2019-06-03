@@ -24,7 +24,7 @@ import service.EnregistrerReservation;
 /**
  * Message-Driven Bean implementation class for: DemandeReservationTopic
  */
-// On se connecte à la file d'attente InscriptionTopic
+// On se connecte ï¿½ la file d'attente InscriptionTopic
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "destination", propertyValue = "java:jboss/exported/topic/DemandeInscriptionJmsTopic"),
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Topic")}, mappedName = "DemandeInscriptionJmsTopic")
@@ -46,41 +46,80 @@ public class DemandeReservationTopic implements MessageListener {
     public void onMessage(Message message) {
         // TODO Auto-generated method stub
         boolean ok = false;
-        // On gère le message récupéré dans le topic
-        try {
-            // On transforme le message en demande de reservation
-            if (message != null) {
-                System.out.println("DEMANDE RESERVATION TOPIC je suis là ");
-                ObjectMessage objectMessage = (ObjectMessage) message;
-                ReservationEntity uneReservation = (ReservationEntity) objectMessage.getObject();
-                // On insère cette demande de réservation dans la base de données
-                // on s'assure que l'écriture ne se fera qu'une fois.
-                message = null;
-                try {
-                    // on construit un objet Entity
-                    ReservationEntity uneReservationEntity = new ReservationEntity();
-                    // on tansfère les données reçues dans l'objet Entity
-                    uneReservationEntity.setClient(uneReservation.getClient());
-                    uneReservationEntity.setDateEcheance(uneReservation.getDateEcheance());
-                    uneReservationEntity.setDateReservation(uneReservation.getDateReservation());
-                    uneReservationEntity.setVehicule(uneReservation.getVehicule());
+        // On gï¿½re le message rï¿½cupï¿½rï¿½ dans le topic
 
-                    EnregistrerReservation uneE = new EnregistrerReservation();
-                    uneE.insertionReservation(uneReservationEntity);
-                } catch (NamingException er) {
-                    EcritureErreur(er.getMessage());
-                } catch (MonException e) {
-                    EcritureErreur(e.getMessage());
-                } catch (Exception ex) {
-                    EcritureErreur(ex.getMessage());
-                }
+        if( message == null ) return ;
+
+        ObjectMessage objectMessage = (ObjectMessage) message;
+
+        try{
+            if( objectMessage instanceof ReservationEntity){
+                this.handleReservetation(objectMessage);
+            }
+            else if(objectMessage instanceof Inscription){
+                this.handleInscription(objectMessage);
             }
 
-        } catch (JMSException jmse) {
+        }
+        catch (JMSException jmse) {
             System.out.println(jmse.getMessage());
             EcritureErreur(jmse.getMessage());
             context.setRollbackOnly();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+
+    }
+
+
+    /**
+     *
+     * @param objectMessage
+     */
+    public void handleReservetation(ObjectMessage objectMessage ) throws JMSException {
+
+        // On transforme le message en demande de reservation
+        System.out.println("DEMANDE RESERVATION TOPIC je suis la ");
+        ReservationEntity uneReservation = (ReservationEntity) objectMessage.getObject();
+        // On insere cette demande de reservation dans la base de donnï¿½es
+        // on s'assure que l'ecriture ne se fera qu'une fois.
+        try {
+            // on construit un objet Entity
+            ReservationEntity uneReservationEntity = new ReservationEntity();
+            // on tansfere les donnees recues dans l'objet Entity
+            uneReservationEntity.setClient(uneReservation.getClient());
+            uneReservationEntity.setDateEcheance(uneReservation.getDateEcheance());
+            uneReservationEntity.setDateReservation(uneReservation.getDateReservation());
+            uneReservationEntity.setVehicule(uneReservation.getVehicule());
+
+            EnregistrerReservation uneE = new EnregistrerReservation();
+            uneE.insertionReservation(uneReservationEntity);
+        } catch (NamingException er) {
+            EcritureErreur(er.getMessage());
+        } catch (MonException e) {
+            EcritureErreur(e.getMessage());
+        } catch (Exception ex) {
+            EcritureErreur(ex.getMessage());
+        }
+
+    }
+
+
+    public void handleInscription(ObjectMessage objectMessage ) throws Exception {
+        // On transforme le message en demande d'une inscription
+        System.out.println("**** DEMANDE d'inscription TOPIC je suis la **** ");
+        Inscription uneInscription = (Inscription) objectMessage.getObject();
+        InscriptionEntity uneInsEntity = new InscriptionEntity();
+        // on tansfere les donnees recues dans l'objet Entity
+        uneInsEntity.setNomcandidat(uneInscription.getNomcandidat());
+        uneInsEntity.setPrenomcandidat(uneInscription.getPrenomcandidat());
+        uneInsEntity.setCpostal(uneInscription.getCpostal());
+        uneInsEntity.setVille(uneInscription.getVille());
+        uneInsEntity.setAdresse(uneInscription.getAdresse());
+        uneInsEntity.setDatenaissance(uneInscription.getDatenaissance());
+        EnregistreInscription uneE = new EnregistreInscription();
+        uneE.insertionInscription(uneInsEntity);
     }
 
     /**
@@ -94,7 +133,7 @@ public class DemandeReservationTopic implements MessageListener {
         Date madate = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy hh:mm");
         try {
-            // On écrit à la fin du fichier
+            // On ï¿½crit ï¿½ la fin du fichier
             wr = new BufferedWriter(new FileWriter(nomf, true));
             wr.newLine();
             wr.write(sdf.format(madate));

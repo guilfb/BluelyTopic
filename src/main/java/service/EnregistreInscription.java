@@ -3,36 +3,31 @@ package service;
 import meserreurs.MonException;
 import javax.persistence.*;
 import metier.InscriptionEntity;
-import metier.ReservationEntity;
 
-public class EnregistrerReservation {
+import java.util.List;
 
-  // on décvlare un EntityManager
+
+public class EnregistreInscription {
+
+    // on declare un EntityManager
     private EntityManagerFactory factory;
     private  EntityManager entityManager;
 
-    public  void insertionReservation(ReservationEntity uneR) throws Exception, MonException {
+    public  void insertionInscription(InscriptionEntity uneI) throws Exception, MonException {
 
-       // On instancie l'entity Manager
+        // On instancie l'entity Manager
         factory = Persistence.createEntityManagerFactory("PInscription");
         entityManager  = factory.createEntityManager();
 
         try {
 
-            if (!entityManager.contains(uneR))
+            if (!entityManager.contains(uneI))
             {
                 // On démarre une transaction
                 entityManager.getTransaction().begin();
-                // On recherche si la reservation existe  existe deja
-                InscriptionEntity reserv = entityManager.find(InscriptionEntity.class,uneR.getVehicule());
-
-                if( reserv==null ){
-                    entityManager.persist(uneR);
-                }
-                else
-                    entityManager.merge(uneR);
-
-                entityManager.persist(uneR);
+                // On recherche si l'inscription existe deja
+                InscriptionEntity inscript = entityManager.find(InscriptionEntity.class,uneI.getNumcandidat());
+                entityManager.persist(uneI);
                 entityManager.flush();
                 // on valide la transacition
                 entityManager.getTransaction().commit();
@@ -45,5 +40,6 @@ public class EnregistrerReservation {
             new MonException("Erreur d'insertion", e.getMessage());
         }
     }
+
 }
 
