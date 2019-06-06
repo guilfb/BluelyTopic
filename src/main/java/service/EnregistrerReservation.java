@@ -2,6 +2,8 @@ package service;
 
 import meserreurs.MonException;
 import javax.persistence.*;
+
+import metier.BorneEntity;
 import metier.InscriptionEntity;
 import metier.ReservationEntity;
 
@@ -29,7 +31,8 @@ public class EnregistrerReservation {
                 // On recherche si la reservation existe  existe deja
                 //ReservationEntity reserv = entityManager.find(ReservationEntity.class,uneR.getVehicule());
                 ReservationEntity reserv = new ReservationEntity();
-                List<ReservationEntity> reservList = new ArrayList<ReservationEntity>();
+                List<ReservationEntity> reservList;
+
 
                 reservList = (List<ReservationEntity>)entityManager.createQuery(String.format("SELECT r FROM ReservationEntity r  WHERE r.vehicule=%d AND r.client= %d AND r.dateReservation=%s", uneR.getVehicule(), uneR.getClient(), uneR.getDateReservation())
                 ).getResultList();
@@ -61,6 +64,21 @@ public class EnregistrerReservation {
         } catch (Exception e) {
             new MonException("Erreur d'insertion", e.getMessage());
         }
+
     }
+
+
+    public BorneEntity getBorneEntityByVehicleId(int id){
+
+        List<BorneEntity> borneList ;
+
+        borneList = (List<BorneEntity> ) entityManager.createQuery("SELECT b FROM BorneEntity b WHERE ").getResultList();
+
+
+        return null;
+    }
+
+
+
 }
 
