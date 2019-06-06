@@ -37,20 +37,21 @@ public class EnregistrerReservation {
                 reservList = (List<ReservationEntity>)entityManager.createQuery(String.format("SELECT r FROM ReservationEntity r  WHERE r.vehicule=%d AND r.client= %d AND r.dateReservation=%s", uneR.getVehicule(), uneR.getClient(), uneR.getDateReservation())
                 ).getResultList();
 
+                BorneEntity borne = this.getBorneEntityByVehicleId(uneR.getVehicule());
+                if( borne != null ){
 
-                if( reservList.size() == 0 )
-                    entityManager.persist(uneR);
-                else
-                    entityManager.merge(uneR);
-
-                /*
-                if( reserv==null ){
-                    entityManager.persist(uneR);
+                    byte etat = 1;
+                    borne.setEtatBorne(etat);
+                    //borne.setVehicule = null ;
                 }
-                else
-                    entityManager.merge(uneR);
 
-                */
+                if( reservList.size() == 0 ){
+                    entityManager.persist(uneR);
+                    entityManager.merge(borne) ;
+                }
+                else{
+                    entityManager.merge(uneR);
+                }
 
                 entityManager.persist(uneR);
                 entityManager.flush();
@@ -72,10 +73,11 @@ public class EnregistrerReservation {
 
         List<BorneEntity> borneList ;
 
-        borneList = (List<BorneEntity> ) entityManager.createQuery("SELECT b FROM BorneEntity b WHERE ").getResultList();
+        borneList = (List<BorneEntity> ) entityManager.createQuery("SELECT b FROM BorneEntity b  ").getResultList();
 
+        if(borneList.size() == 0 ) return null ;
 
-        return null;
+        return borneList.get(0);
     }
 
 
