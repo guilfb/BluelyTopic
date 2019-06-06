@@ -4,13 +4,12 @@ import meserreurs.MonException;
 import javax.persistence.*;
 
 import metier.BorneEntity;
-import metier.InscriptionEntity;
 import metier.ReservationEntity;
+import metier.VehiculeEntity;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class EnregistrerReservation {
+public class ServiceReservation {
 
   // on décvlare un EntityManager
     private EntityManagerFactory factory;
@@ -38,18 +37,25 @@ public class EnregistrerReservation {
                 ).getResultList();
 
                 BorneEntity borne = this.getBorneEntityByVehicleId(uneR.getVehicule());
-                if( borne != null ){
+                VehiculeEntity vehicule = this.getVehiculeById(uneR.getVehicule());
 
+                if( borne != null ){
                     byte etat = 1;
                     borne.setEtatBorne(etat);
-                    //borne.setVehicule = null ;
+                    borne.setVehicule(null)  ;
+                }
+                if( vehicule != null ){
+                    vehicule.setDisponibilite("RESERVE");
+                    vehicule.setLatitude(null);
+                    vehicule.setLongitude(null);
                 }
 
                 if( reservList.size() == 0 ){
                     entityManager.persist(uneR);
                     entityManager.merge(borne) ;
+                    entityManager.merge(vehicule);
                 }
-                else{
+                else{ // COrrespond à une fin de reservation , Quand on clique sur bouton Utiliser voiture ???
                     entityManager.merge(uneR);
                 }
 
@@ -73,11 +79,23 @@ public class EnregistrerReservation {
 
         List<BorneEntity> borneList ;
 
-        borneList = (List<BorneEntity> ) entityManager.createQuery("SELECT b FROM BorneEntity b  ").getResultList();
+        borneList = (List<BorneEntity> ) entityManager.createQuery("SELECT b FROM BorneEntity b WHERE b.vehicule="+id).getResultList();
 
         if(borneList.size() == 0 ) return null ;
 
         return borneList.get(0);
+    }
+
+    public VehiculeEntity getVehiculeById(int id){
+
+        List<VehiculeEntity> list;
+
+        list  = (List<VehiculeEntity>)  entityManager.createQuery("SELECT  v FROM VehiculeEntity  v WHERE v.id="+id).getResultList();
+
+        if( list.size() == 0 ) return null;
+
+        return list.get(0);
+
     }
 
 

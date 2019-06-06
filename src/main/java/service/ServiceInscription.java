@@ -2,18 +2,20 @@ package service;
 
 import meserreurs.MonException;
 import javax.persistence.*;
-import metier.InscriptionEntity;
+import javax.ws.rs.client.Client;
+
+import metier.ClientEntity;
 
 import java.util.List;
 
 
-public class EnregistreInscription {
+public class ServiceInscription {
 
     // on declare un EntityManager
     private EntityManagerFactory factory;
     private  EntityManager entityManager;
 
-    public  void insertionInscription(InscriptionEntity uneI) throws Exception, MonException {
+    public  void insertionInscription(ClientEntity unClient) throws Exception, MonException {
 
         // On instancie l'entity Manager
         factory = Persistence.createEntityManagerFactory("PInscription");
@@ -21,13 +23,13 @@ public class EnregistreInscription {
 
         try {
 
-            if (!entityManager.contains(uneI))
+            if (!entityManager.contains(unClient))
             {
                 // On démarre une transaction
                 entityManager.getTransaction().begin();
                 // On recherche si l'inscription existe deja
-                InscriptionEntity inscript = entityManager.find(InscriptionEntity.class,uneI.getNumcandidat());
-                entityManager.persist(uneI);
+                ClientEntity inscript = entityManager.find(ClientEntity.class, unClient.getIdClient());
+                entityManager.persist(unClient);
                 entityManager.flush();
                 // on valide la transacition
                 entityManager.getTransaction().commit();
