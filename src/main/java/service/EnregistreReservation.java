@@ -1,16 +1,21 @@
 package service;
 
 import meserreurs.MonException;
-import javax.persistence.*;
 import metier.InscriptionEntity;
+import metier.ReservationEntity;
 
-public class EnregistreInscription {
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.Persistence;
+
+public class EnregistreReservation {
 
   // on décvlare un EntityManager
     private EntityManagerFactory factory;
     private EntityManager entityManager;
 
-    public  void insertionInscription(InscriptionEntity uneI) throws Exception, MonException {
+    public  void insertionInscription(ReservationEntity uneReservation) throws Exception, MonException {
 
        // On instancie l'entity Manager
         factory = Persistence.createEntityManagerFactory("PInscription");
@@ -18,11 +23,11 @@ public class EnregistreInscription {
 
         try {
 
-            if (!entityManager.contains(uneI))
+            if (!entityManager.contains(uneReservation))
             {
                 // On démarre une transaction
                 entityManager.getTransaction().begin();
-                entityManager.persist(uneI);
+                entityManager.persist(uneReservation);
                 entityManager.flush();
                 // on valide la transacition
                 entityManager.getTransaction().commit();

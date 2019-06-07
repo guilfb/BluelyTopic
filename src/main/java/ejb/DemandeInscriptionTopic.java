@@ -1,7 +1,7 @@
 package ejb;
 
 import meserreurs.MonException;
-import metier.*;
+import metier.Reservation;
 
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
@@ -19,12 +19,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import service.EnregistreInscription;
+import metier.ReservationEntity;
+import service.EnregistreReservation;
 
-/**
- * Message-Driven Bean implementation class for: DemandeInscriptionTopic
- */
-// On se connecte à la file d'attente InscriptionTopic
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "destination", propertyValue = "java:jboss/exported/topic/DemandeInscriptionJmsTopic"),
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Topic")}, mappedName = "DemandeInscriptionJmsTopic")
@@ -33,41 +30,36 @@ public class DemandeInscriptionTopic implements MessageListener {
     @Resource
     private MessageDrivenContext context;
 
-    /*
-     * Default constructor.
-     */
     public DemandeInscriptionTopic() {
         // TODO Auto-generated constructor stub
     }
 
-    /**
-     * @see MessageListener#onMessage(Message)
-     */
     public void onMessage(Message message) {
         // TODO Auto-generated method stub
         boolean ok = false;
-        // On gère le message récupéré dans le topic
+
         try {
-            // On transforme le message en demande d'inscription
             if (message != null) {
-                System.out.println("je suis là ");
                 ObjectMessage objectMessage = (ObjectMessage) message;
-                Inscription uneInscription = (Inscription) objectMessage.getObject();
-                // On insère cette demande d'inscription dans la base de données
-                // on s'assure que l'écriture ne se fera qu'une fois.
+
+                System.out.println(objectMessage);
+                System.out.println(objectMessage.getObject());
+                System.out.println(objectMessage.getObject() instanceof Reservation);
+                System.out.println(objectMessage.getObject() instanceof ReservationEntity);
+
+                Reservation uneReservation = (Reservation) objectMessage.getObject();
+
                 message = null;
                 try {
-                    // on construit un objet Entity
-                    InscriptionEntity uneInsEntity = new InscriptionEntity();
-                    // on tansfère les données reçues dans l'objet Entity
-                    uneInsEntity.setNomcandidat(uneInscription.getNomcandidat());
-                    uneInsEntity.setPrenomcandidat(uneInscription.getPrenomcandidat());
-                    uneInsEntity.setCpostal(uneInscription.getCpostal());
-                    uneInsEntity.setVille(uneInscription.getVille());
-                    uneInsEntity.setAdresse(uneInscription.getAdresse());
-                    uneInsEntity.setDatenaissance(uneInscription.getDatenaissance());
-                    EnregistreInscription uneE = new EnregistreInscription();
-                    uneE.insertionInscription(uneInsEntity);
+                    ReservationEntity uneResaEntity = new ReservationEntity();
+
+                    uneResaEntity.setDateEcheance(uneReservation.getDateEcheance());
+                    uneResaEntity.setDateReservation(uneReservation.getDateReservation());
+                    uneResaEntity.setClient(uneReservation.getClient().getIdClient());
+                    uneResaEntity.setVehicule(uneReservation.getVehicule().getIdVehicule());
+
+                    EnregistreReservation uneE = new EnregistreReservation();
+                    uneE.insertionInscription(uneResaEntity);
                 } catch (NamingException er) {
                     EcritureErreur(er.getMessage());
                 } catch (MonException e) {
@@ -76,7 +68,6 @@ public class DemandeInscriptionTopic implements MessageListener {
                     EcritureErreur(ex.getMessage());
                 }
             }
-
         } catch (JMSException jmse) {
             System.out.println(jmse.getMessage());
             EcritureErreur(jmse.getMessage());
@@ -84,11 +75,6 @@ public class DemandeInscriptionTopic implements MessageListener {
         }
     }
 
-    /**
-     * Permet d'enregistrer une erreur dans un fichier log
-     *
-     * @param message Le message d'erreur
-     */
     public void EcritureErreur(String message) {
         BufferedWriter wr;
         String nomf = "erreurs.log";
@@ -103,9 +89,9 @@ public class DemandeInscriptionTopic implements MessageListener {
             wr.write(message);
             wr.close();
         } catch (FileNotFoundException ef) {
-            ;
+            System.out.println(ef.getMessage());
         } catch (IOException eio) {
-            ;
+            System.out.println(eio.getMessage());
         }
     }
 }
