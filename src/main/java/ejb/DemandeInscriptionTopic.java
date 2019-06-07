@@ -1,6 +1,8 @@
 package ejb;
 
 import meserreurs.MonException;
+import metier.Client;
+import metier.ClientEntity;
 import metier.Reservation;
 
 import javax.annotation.Resource;
@@ -21,6 +23,8 @@ import java.util.Date;
 
 import metier.ReservationEntity;
 import service.EnregistreReservation;
+import service.ServiceInscription;
+import service.ServiceReservation;
 
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "destination", propertyValue = "java:jboss/exported/topic/DemandeInscriptionJmsTopic"),
@@ -49,17 +53,16 @@ public class DemandeInscriptionTopic implements MessageListener {
 
                 Reservation uneReservation = (Reservation) objectMessage.getObject();
 
-                message = null;
+               // message = null;
+
                 try {
-                    ReservationEntity uneResaEntity = new ReservationEntity();
+                    if( objectMessage instanceof Reservation){
+                        this.handleReservetation(objectMessage);
+                    }
+                    else if(objectMessage instanceof Client){
+                        this.handleInscription(objectMessage);
+                    }
 
-                    uneResaEntity.setDateEcheance(uneReservation.getDateEcheance());
-                    uneResaEntity.setDateReservation(uneReservation.getDateReservation());
-                    uneResaEntity.setClient(uneReservation.getClient().getIdClient());
-                    uneResaEntity.setVehicule(uneReservation.getVehicule().getIdVehicule());
-
-                    EnregistreReservation uneE = new EnregistreReservation();
-                    uneE.insertionInscription(uneResaEntity);
                 } catch (NamingException er) {
                     EcritureErreur(er.getMessage());
                 } catch (MonException e) {
@@ -81,7 +84,7 @@ public class DemandeInscriptionTopic implements MessageListener {
         Date madate = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy hh:mm");
         try {
-            // On écrit à la fin du fichier
+            // On ï¿½crit ï¿½ la fin du fichier
             wr = new BufferedWriter(new FileWriter(nomf, true));
             wr.newLine();
             wr.write(sdf.format(madate));
@@ -93,5 +96,56 @@ public class DemandeInscriptionTopic implements MessageListener {
         } catch (IOException eio) {
             System.out.println(eio.getMessage());
         }
+    }
+
+
+    /**
+     *
+     * @param objectMessage
+     */
+    public void handleReservetation(ObjectMessage objectMessage ) throws JMSException {
+
+        // On transforme le message en demande de reservation
+        System.out.println("DEMANDE RESERVATION TOPIC je suis la ");
+        Reservation uneReservation = (Reservation) objectMessage.getObject();
+        // On insere cette demande de reservation dans la base de donnï¿½es
+        // on s'assure que l'ecriture ne se fera qu'une fois.
+        try {
+            // on construit un objet Entity
+            ReservationEntity uneReservationEntity = new ReservationEntity();
+
+            // on tansfere les donnees recues dans l'objet Entity
+            uneReservationEntity.setClient(uneReservation.getClient().getIdClient() );
+            uneReservationEntity.setDateEcheance(uneReservation.getDateEcheance());
+            uneReservationEntity.setDateReservation(uneReservation.getDateReservation());
+            uneReservationEntity.setVehicule(uneReservation.getVehicule().getIdVehicule());
+
+            ServiceReservation uneE = new ServiceReservation();
+            uneE.insertionReservation(uneReservationEntity);
+        } catch (NamingException er) {
+            EcritureErreur(er.getMessage());
+        } catch (MonException e) {
+            EcritureErreur(e.getMessage());
+        } catch (Exception ex) {
+            EcritureErreur(ex.getMessage());
+        }
+
+    }
+
+
+    public void handleInscription(ObjectMessage objectMessage ) throws Exception {
+        // On transforme le message en demande d'une inscription
+        System.out.println("**** DEMANDE d'inscription TOPIC je suis la **** ");
+        Client data = (Client) objectMessage.getObject();
+        ClientEntity unClient = new ClientEntity();
+
+        // on tansfere les donnees recues dans l'objet Entity
+        unClient.setNom( data.getNom());
+        unClient.setIdClient(data.getIdClient());
+        unClient.setDateNaissance(data.getDateNaissance());
+        unClient.setPrenom(data.getPrenom());
+
+        ServiceInscription uneE = new ServiceInscription();
+        uneE.insertionInscription(unClient);
     }
 }
