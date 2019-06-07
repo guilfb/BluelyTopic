@@ -22,7 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import metier.ReservationEntity;
-import service.EnregistreReservation;
 import service.ServiceInscription;
 import service.ServiceReservation;
 
