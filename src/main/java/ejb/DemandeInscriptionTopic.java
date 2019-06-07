@@ -51,8 +51,7 @@ public class DemandeInscriptionTopic implements MessageListener {
                 System.out.println(objectMessage.getObject() instanceof Reservation);
                 System.out.println(objectMessage.getObject() instanceof ReservationEntity);
 
-                Reservation uneReservation = (Reservation) objectMessage.getObject();
-
+               // Reservation uneReservation = (Reservation) objectMessage.getObject();
                // message = null;
 
                 try {
