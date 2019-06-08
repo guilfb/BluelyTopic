@@ -34,7 +34,7 @@ public class ServiceReservation {
 
 
                 reservList = (List<ReservationEntity>)entityManager.createQuery(String.format("SELECT r FROM ReservationEntity r  WHERE r.vehicule=%d AND r.client= %d AND r.dateReservation=%s", uneR.getVehicule(), uneR.getClient(), uneR.getDateReservation())
-                ).getResultList();
+                ).getResultList(); // A supprimer car condition dans if identique
 
                 BorneEntity borne = this.getBorneEntityByVehicleId(uneR.getVehicule());
                 VehiculeEntity vehicule = this.getVehiculeById(uneR.getVehicule());
@@ -55,15 +55,17 @@ public class ServiceReservation {
                     entityManager.merge(borne) ;
                     entityManager.merge(vehicule);
                 }
-                else{ // COrrespond à une fin de reservation , Quand on clique sur bouton Utiliser voiture ???
-                    entityManager.merge(uneR);
-                }
 
-                entityManager.persist(uneR);
-                entityManager.flush();
+
+                //entityManager.persist(uneR);
                 // on valide la transacition
-                entityManager.getTransaction().commit();
             }
+            else{ // COrrespond au bouton Retirer, Faut mettre à jour la reservation
+                // , Quand on veut Utiliser une voiture  donc fin d'une reservation ???
+                entityManager.merge(uneR);
+            }
+            entityManager.flush();
+            entityManager.getTransaction().commit();
             entityManager.close();
 
         } catch (EntityNotFoundException h) {

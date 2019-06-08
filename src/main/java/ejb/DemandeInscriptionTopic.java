@@ -1,9 +1,7 @@
 package ejb;
 
 import meserreurs.MonException;
-import metier.Client;
-import metier.ClientEntity;
-import metier.Reservation;
+import metier.*;
 
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
@@ -21,9 +19,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import metier.ReservationEntity;
 import service.ServiceInscription;
 import service.ServiceReservation;
+import service.ServiceUtilise;
 
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "destination", propertyValue = "java:jboss/exported/topic/DemandeInscriptionJmsTopic"),
@@ -59,6 +57,9 @@ public class DemandeInscriptionTopic implements MessageListener {
                     }
                     else if(objectMessage instanceof Client){
                         this.handleInscription(objectMessage);
+                    }
+                    else if(objectMessage instanceof Utilise){
+                        this.handleRendreVoiture(objectMessage);
                     }
 
                 } catch (NamingException er) {
@@ -146,4 +147,26 @@ public class DemandeInscriptionTopic implements MessageListener {
         ServiceInscription uneE = new ServiceInscription();
         uneE.insertionInscription(unClient);
     }
+
+    /**
+     *
+     * @param objectMessage
+     */
+    private void handleRendreVoiture(ObjectMessage objectMessage) throws Exception {
+        System.out.println("**** DEMANDE de fin d'utilisation d'une voiture TOPIC je suis la **** ");
+        Utilise utilise = (Utilise)objectMessage.getObject();
+        UtiliseEntity utiliseEntity = new UtiliseEntity();
+
+        // on tansfere les donnees recues dans l'objet Entity
+        utiliseEntity.setClient(utilise.getClient());
+        utiliseEntity.setDate(utilise.getDate());
+        utiliseEntity.setVehicule(utilise.getVehicule());
+
+        ServiceUtilise service = new ServiceUtilise();
+        service.insertUtilise(utiliseEntity);
+
+
+
+    }
+
 }
