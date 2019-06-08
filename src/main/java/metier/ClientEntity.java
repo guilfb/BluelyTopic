@@ -1,25 +1,49 @@
 package metier;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Date;
 import java.util.Objects;
 
 @Entity
 @Table(name = "client", schema = "autolib", catalog = "")
-public class ClientEntity {
+@NamedQuery(name = "ClientEntity.rechercheNom", query = "select ct  from ClientEntity  ct where ct.login = :login")
+public class ClientEntity implements Serializable {
     private int idClient;
+    private String login;
+    private String motdepasse;
     private String nom;
     private String prenom;
     private Date dateNaissance;
 
     @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
     @Column(name = "idClient")
     public int getIdClient() {
         return idClient;
     }
-
     public void setIdClient(int idClient) {
         this.idClient = idClient;
+    }
+
+
+    @Basic
+    @Column(name = "login")
+    public String getLogin() {
+        return login;
+    }
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    @Basic
+    @Column(name = "motdepasse")
+    public String getMotdepasse() {
+        return motdepasse;
+    }
+
+    public void setMotdepasse(String motdepasse) {
+        this.motdepasse = motdepasse;
     }
 
     @Basic
