@@ -46,9 +46,7 @@ public class DemandeInscriptionTopic implements MessageListener {
                 System.out.println("******** Dans Serveur *******");
                 System.out.println("Type objet message recu : "+ objectMessage.getObject());
                 System.out.println(objectMessage.getObject());
-                System.out.println(objectMessage.getObject() instanceof Reservation);
-                System.out.println(objectMessage.getObject() instanceof ReservationEntity);
-                System.out.println("Objet de type Utilise :"+(objectMessage.getObject() instanceof Utilise));
+                System.out.println("Objet est de type Utilise :"+(objectMessage.getObject() instanceof Utilise));
 
 
                 // Reservation uneReservation = (Reservation) objectMessage.getObject();
@@ -111,14 +109,10 @@ public class DemandeInscriptionTopic implements MessageListener {
         // On transforme le message en demande de reservation
         System.out.println(" ******* DEMANDE RESERVATION TOPIC je suis la***** \n");
         Reservation uneReservation = (Reservation) objectMessage.getObject();
-        // On insere cette demande de reservation dans la base de donn�es
-        // on s'assure que l'ecriture ne se fera qu'une fois.
-        try {
-            // on construit un objet Entity
-            ReservationEntity uneReservationEntity = new ReservationEntity();
 
-            // on tansfere les donnees recues dans l'objet Entity
-            uneReservationEntity.setClient(uneReservation.getClient().getIdClient() );
+        try {
+            ReservationEntity uneReservationEntity = new ReservationEntity();
+            uneReservationEntity.setClient(uneReservation.getClient().getIdClient());
             uneReservationEntity.setDateEcheance(uneReservation.getDateEcheance());
             uneReservationEntity.setDateReservation(uneReservation.getDateReservation());
             uneReservationEntity.setVehicule(uneReservation.getVehicule().getIdVehicule());
@@ -132,21 +126,22 @@ public class DemandeInscriptionTopic implements MessageListener {
         } catch (Exception ex) {
             EcritureErreur(ex.getMessage());
         }
-
     }
 
 
     public void handleInscription(ObjectMessage objectMessage ) throws Exception {
         // On transforme le message en demande d'une inscription
         System.out.println("**** DEMANDE d'inscription TOPIC je suis la **** ");
+
         Client data = (Client) objectMessage.getObject();
         ClientEntity unClient = new ClientEntity();
 
-        // on tansfere les donnees recues dans l'objet Entity
-        unClient.setNom( data.getNom());
         unClient.setIdClient(data.getIdClient());
         unClient.setDateNaissance(data.getDateNaissance());
         unClient.setPrenom(data.getPrenom());
+        unClient.setNom(data.getNom());
+        unClient.setLogin(data.getLogin());
+        unClient.setMotdepasse(data.getMotdepasse());
 
         ServiceInscription uneE = new ServiceInscription();
         uneE.insertionInscription(unClient);
