@@ -11,57 +11,27 @@ import java.util.List;
 
 public class ServiceReservation {
 
-  // on décvlare un EntityManager
     private EntityManagerFactory factory;
     private  EntityManager entityManager;
 
     public  void insertionReservation(ReservationEntity uneR) throws Exception, MonException {
 
-       // On instancie l'entity Manager
         factory = Persistence.createEntityManagerFactory("PInscription");
         entityManager  = factory.createEntityManager();
 
         try {
-
-            if (!entityManager.contains(uneR))
-            {
-                // On démarre une transaction
+            if (!entityManager.contains(uneR)) {
                 entityManager.getTransaction().begin();
-                // On recherche si la reservation existe  existe deja
-                //ReservationEntity reserv = entityManager.find(ReservationEntity.class,uneR.getVehicule());
-                ReservationEntity reserv = new ReservationEntity();
-                List<ReservationEntity> reservList;
 
-
-                reservList = (List<ReservationEntity>)entityManager.createQuery(String.format("SELECT r FROM ReservationEntity r  WHERE r.vehicule=%d AND r.client= %d AND r.dateReservation=%s", uneR.getVehicule(), uneR.getClient(), uneR.getDateReservation())
-                ).getResultList();
-
-                BorneEntity borne = this.getBorneEntityByVehicleId(uneR.getVehicule());
                 VehiculeEntity vehicule = this.getVehiculeById(uneR.getVehicule());
 
-                if( borne != null ){
-                    byte etat = 1;
-                    borne.setEtatBorne(etat);
-                    borne.setVehicule(null)  ;
-                }
-                if( vehicule != null ){
-                    vehicule.setDisponibilite("RESERVE");
-                    vehicule.setLatitude(null);
-                    vehicule.setLongitude(null);
-                }
-
-                if( reservList.size() == 0 ){
-                    entityManager.persist(uneR);
-                    entityManager.merge(borne) ;
-                    entityManager.merge(vehicule);
-                }
-                else{ // COrrespond à une fin de reservation , Quand on clique sur bouton Utiliser voiture ???
-                    entityManager.merge(uneR);
-                }
+                vehicule.setDisponibilite("RESERVE");
 
                 entityManager.persist(uneR);
                 entityManager.flush();
-                // on valide la transacition
+                entityManager.merge(vehicule);
+                entityManager.flush();
+
                 entityManager.getTransaction().commit();
             }
             entityManager.close();
@@ -101,4 +71,3 @@ public class ServiceReservation {
 
 
 }
-
