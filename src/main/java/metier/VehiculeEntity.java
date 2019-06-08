@@ -13,6 +13,16 @@ public class VehiculeEntity {
     private String disponibilite;
     private BigDecimal latitude;
     private BigDecimal longitude;
+    private int typeVehicule;
+
+    @Basic
+    @Column(name = "type_vehicule")
+    public int getTypeVehicule() {
+        return typeVehicule;
+    }
+    public void setTypeVehicule(int id) {
+        this.typeVehicule = id;
+    }
 
     @Id
     @Column(name = "idVehicule")
