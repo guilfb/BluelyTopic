@@ -20,9 +20,17 @@ public class ServiceUtilise {
 
     public void insertUtilise( UtiliseEntity utiliseEntity){
 
+        System.out.println("***** Dans methode InsertUtilise *******\n");
+        System.out.println("Utilise Entity recu = ");
+        System.out.println("Utilise vehicule id= "+utiliseEntity.getVehicule());
+        System.out.println("Utilise client id= "+utiliseEntity.getClient());
+        System.out.println("Utilise Date ="+utiliseEntity.getDate());
+
+
         // On instancie l'entity Manager
         factory = Persistence.createEntityManagerFactory("PInscription");
         entityManager  = factory.createEntityManager();
+
 
         try{
 
@@ -30,6 +38,7 @@ public class ServiceUtilise {
             VehiculeEntity vehicule = unServiceReservation.getVehiculeById( utiliseEntity.getVehicule() );
             BorneEntity borne = unServiceReservation.getBorneEntityByVehicleId(utiliseEntity.getVehicule());
             StationEntity stationArrive = this.getStationById(borne.getStation());
+            entityManager.getTransaction().begin();
 
             // Update de la borne d'arrivée
             byte etat=1;
@@ -41,11 +50,24 @@ public class ServiceUtilise {
             vehicule.setLongitude(stationArrive.getLongitude());
             vehicule.setLatitude(stationArrive.getLatitude());
 
+            System.out.println("Les info a update:");
+            System.out.println("Borne d'arivee:"+borne.getIdBorne() );
+            System.out.println("Station d'arrivee:"+stationArrive.getIdStation() );
+
+            // on insere Utilise Entity
+            entityManager.persist(utiliseEntity);
+            entityManager.flush();
+            entityManager.getTransaction().commit(); // Necessaire ? ou un seul commit a la fin ?
+
+
             // ON update les tables
             entityManager.merge(borne);
+            entityManager.flush();
+            entityManager.getTransaction().commit();
             entityManager.merge(vehicule);
             entityManager.flush();
             entityManager.getTransaction().commit();
+
             entityManager.close();
 
         }

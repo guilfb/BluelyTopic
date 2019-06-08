@@ -43,22 +43,26 @@ public class DemandeInscriptionTopic implements MessageListener {
             if (message != null) {
                 ObjectMessage objectMessage = (ObjectMessage) message;
 
-                System.out.println(objectMessage);
+                System.out.println("******** Dans Serveur *******");
+                System.out.println("Type objet message recu : "+ objectMessage.getObject());
                 System.out.println(objectMessage.getObject());
                 System.out.println(objectMessage.getObject() instanceof Reservation);
                 System.out.println(objectMessage.getObject() instanceof ReservationEntity);
+                System.out.println("Objet de type Utilise :"+(objectMessage.getObject() instanceof Utilise));
 
-               // Reservation uneReservation = (Reservation) objectMessage.getObject();
+
+                // Reservation uneReservation = (Reservation) objectMessage.getObject();
                // message = null;
 
                 try {
-                    if( objectMessage instanceof Reservation){
+                    if( objectMessage.getObject() instanceof Reservation){
                         this.handleReservetation(objectMessage);
                     }
-                    else if(objectMessage instanceof Client){
+                    else if(objectMessage.getObject() instanceof Client){
                         this.handleInscription(objectMessage);
                     }
-                    else if(objectMessage instanceof Utilise){
+                    else if(objectMessage.getObject() instanceof Utilise){
+                        System.out.print("Dans if de instance of Utilise ");
                         this.handleRendreVoiture(objectMessage);
                     }
 
@@ -105,7 +109,7 @@ public class DemandeInscriptionTopic implements MessageListener {
     public void handleReservetation(ObjectMessage objectMessage ) throws JMSException {
 
         // On transforme le message en demande de reservation
-        System.out.println("DEMANDE RESERVATION TOPIC je suis la ");
+        System.out.println(" ******* DEMANDE RESERVATION TOPIC je suis la***** \n");
         Reservation uneReservation = (Reservation) objectMessage.getObject();
         // On insere cette demande de reservation dans la base de donn�es
         // on s'assure que l'ecriture ne se fera qu'une fois.
@@ -153,7 +157,7 @@ public class DemandeInscriptionTopic implements MessageListener {
      * @param objectMessage
      */
     private void handleRendreVoiture(ObjectMessage objectMessage) throws Exception {
-        System.out.println("**** DEMANDE de fin d'utilisation d'une voiture TOPIC je suis la **** ");
+        System.out.println("/n**** DEMANDE de fin d'utilisation d'une voiture TOPIC je suis la ****\n");
         Utilise utilise = (Utilise)objectMessage.getObject();
         UtiliseEntity utiliseEntity = new UtiliseEntity();
 
@@ -161,12 +165,11 @@ public class DemandeInscriptionTopic implements MessageListener {
         utiliseEntity.setClient(utilise.getClient());
         utiliseEntity.setDate(utilise.getDate());
         utiliseEntity.setVehicule(utilise.getVehicule());
+        utiliseEntity.setBorneArrivee(utilise.getBorneArrivee());
+        utiliseEntity.setBorneDepart(utilise.getBorneDepart());
 
         ServiceUtilise service = new ServiceUtilise();
         service.insertUtilise(utiliseEntity);
-
-
-
     }
 
 }

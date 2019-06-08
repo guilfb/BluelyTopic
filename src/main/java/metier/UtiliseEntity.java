@@ -11,6 +11,8 @@ public class UtiliseEntity {
     private int vehicule;
     private int client;
     private Timestamp date;
+    private int borneDepart;
+    private int borneArrivee;
 
     @Id
     @Column(name = "Vehicule")
@@ -50,6 +52,24 @@ public class UtiliseEntity {
         return vehicule == that.vehicule &&
                 client == that.client &&
                 Objects.equals(date, that.date);
+    }
+
+    @Basic
+    @Column(name = "borne_depart")
+    public int getBorneDepart() {
+        return borneDepart;
+    }
+    public void setBorneDepart(int id) {
+        this.borneDepart = id;
+    }
+
+    @Basic
+    @Column(name = "borne_arrivee")
+    public int getBorneArrivee() {
+        return this.borneArrivee;
+    }
+    public void setBorneArrivee(int id) {
+        this.borneArrivee = id;
     }
 
     @Override
