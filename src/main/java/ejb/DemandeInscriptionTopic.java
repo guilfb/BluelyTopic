@@ -21,6 +21,7 @@ import java.util.Date;
 
 import service.ServiceInscription;
 import service.ServiceReservation;
+import service.ServiceUtilise;
 
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "destination", propertyValue = "java:jboss/exported/topic/DemandeInscriptionJmsTopic"),
@@ -36,7 +37,6 @@ public class DemandeInscriptionTopic implements MessageListener {
 
     public void onMessage(Message message) {
         // TODO Auto-generated method stub
-        boolean ok = false;
 
         if (message != null) {
             ObjectMessage objectMessage = (ObjectMessage) message;
@@ -45,6 +45,12 @@ public class DemandeInscriptionTopic implements MessageListener {
                 Reservation reservation = new Reservation();
                 Utilise utilise = new Utilise();
 
+                System.out.println("TESSSSSSSSSSSSST");
+                System.out.println(objectMessage);
+                System.out.println("object " + objectMessage.getObject());
+                System.out.println("object1 " + objectMessage.getObject().getClass());
+                System.out.println("object2 " + objectMessage.getObject().getClass().isInstance(utilise));
+
                 if(objectMessage.getObject().getClass().isInstance(reservation)){
                     this.handleReservetation(objectMessage);
                 }
@@ -52,14 +58,17 @@ public class DemandeInscriptionTopic implements MessageListener {
                     this.handleInscription(objectMessage);
                 }
                 else if(objectMessage.getObject().getClass().isInstance(utilise)) {
-                    //this.handleUtilise(objectMessage);
+                    this.handleUtilise(objectMessage);
                 }
             } catch (NamingException er) {
                 EcritureErreur(er.getMessage());
+                System.out.println(er.getMessage());
             } catch (MonException e) {
                 EcritureErreur(e.getMessage());
+                System.out.println(e.getMessage());
             } catch (Exception ex) {
                 EcritureErreur(ex.getMessage());
+                System.out.println(ex.getMessage());
             }
         }
     }
@@ -103,6 +112,20 @@ public class DemandeInscriptionTopic implements MessageListener {
 
         ServiceInscription uneE = new ServiceInscription();
         uneE.insertionInscription(unClient);
+    }
+
+    private void handleUtilise(ObjectMessage objectMessage) throws Exception {
+        System.out.println("**** Utilisation ****");
+
+        Utilise utilise = (Utilise)objectMessage.getObject();
+
+        ServiceUtilise service = new ServiceUtilise();
+
+        if(utilise.getBorneArrivee() == null) {
+            service.insertUtilise(utilise);
+        }else{
+            service.updateUtilise(utilise);
+        }
     }
 
     public void EcritureErreur(String message) {

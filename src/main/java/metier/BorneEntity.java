@@ -1,15 +1,16 @@
 package metier;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
 @Table(name = "borne", schema = "autolib", catalog = "")
-public class BorneEntity {
+public class BorneEntity implements Serializable {
     private int idBorne;
     private byte etatBorne;
-    private int station;
-    private Integer vehicule;
+    private StationEntity station;
+    private VehiculeEntity vehicule;
 
     @Id
     @Column(name = "idBorne")
@@ -29,24 +30,21 @@ public class BorneEntity {
         this.etatBorne = etatBorne;
     }
 
-    @Basic
-    @Column(name = "station")
-    public int getStation() {
+    @ManyToOne
+    @JoinColumn(name = "station", referencedColumnName = "idStation")
+    public StationEntity getStation() {
         return station;
     }
-    public void setStation(int station) {
+    public void setStation(StationEntity station) {
         this.station = station;
     }
 
-    @Basic
-    @Column(name = "idVehicule")
-    public Integer getVehicule() {
-        if(vehicule != null) {
-            return vehicule;
-        }
-        return 0;
+    @ManyToOne
+    @JoinColumn(name = "idVehicule", referencedColumnName = "idVehicule")
+    public VehiculeEntity getVehicule() {
+        return vehicule;
     }
-    public void setVehicule(Integer vehicule) {
+    public void setVehicule(VehiculeEntity vehicule) {
         this.vehicule = vehicule;
     }
 

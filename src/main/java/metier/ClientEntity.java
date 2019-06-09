@@ -17,7 +17,7 @@ public class ClientEntity implements Serializable {
     private Date dateNaissance;
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "idClient")
     public int getIdClient() {
         return idClient;

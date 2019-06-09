@@ -1,12 +1,13 @@
 package metier;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
 @Table(name = "station", schema = "autolib", catalog = "")
-public class StationEntity {
+public class StationEntity implements Serializable {
     private int idStation;
     private BigDecimal latitude;
     private BigDecimal longitude;

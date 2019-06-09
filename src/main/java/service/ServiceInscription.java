@@ -25,13 +25,9 @@ public class ServiceInscription {
 
             if (!entityManager.contains(unClient))
             {
-                // On démarre une transaction
                 entityManager.getTransaction().begin();
-                // On recherche si l'inscription existe deja
-                ClientEntity inscript = entityManager.find(ClientEntity.class, unClient.getIdClient());
                 entityManager.persist(unClient);
                 entityManager.flush();
-                // on valide la transacition
                 entityManager.getTransaction().commit();
             }
             entityManager.close();

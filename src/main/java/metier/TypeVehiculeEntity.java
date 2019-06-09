@@ -1,11 +1,12 @@
 package metier;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
 @Table(name = "type_vehicule", schema = "autolib", catalog = "")
-public class TypeVehiculeEntity {
+public class TypeVehiculeEntity implements Serializable {
     private int idTypeVehicule;
     private String categorie;
     private String typeVehicule;
