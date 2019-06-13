@@ -2,16 +2,10 @@ package service;
 
 import meserreurs.MonException;
 import javax.persistence.*;
-import javax.ws.rs.client.Client;
-
 import metier.ClientEntity;
-
-import java.util.List;
-
 
 public class ServiceInscription {
 
-    // on declare un EntityManager
     private EntityManagerFactory factory;
     private  EntityManager entityManager;
 
@@ -22,9 +16,7 @@ public class ServiceInscription {
         entityManager  = factory.createEntityManager();
 
         try {
-
-            if (!entityManager.contains(unClient))
-            {
+            if (!entityManager.contains(unClient)){
                 entityManager.getTransaction().begin();
                 entityManager.persist(unClient);
                 entityManager.flush();

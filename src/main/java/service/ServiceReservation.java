@@ -3,10 +3,7 @@ package service;
 import meserreurs.MonException;
 import javax.persistence.*;
 
-import metier.BorneEntity;
-import metier.ClientEntity;
-import metier.ReservationEntity;
-import metier.VehiculeEntity;
+import metier.*;
 
 import java.util.List;
 
@@ -19,8 +16,6 @@ public class ServiceReservation {
 
         factory = Persistence.createEntityManagerFactory("PInscription");
         entityManager  = factory.createEntityManager();
-
-        System.out.println("TEST1");
 
         try {
             if (!entityManager.contains(uneR)) {
@@ -39,19 +34,38 @@ public class ServiceReservation {
 
     }
 
-
-    public BorneEntity getBorneEntityByVehicleId(int id){
+    public  void updateReservation(ReservationEntity uneR) throws Exception, MonException {
 
         factory = Persistence.createEntityManagerFactory("PInscription");
         entityManager  = factory.createEntityManager();
 
-        List<BorneEntity> borneList ;
+        try {
+            entityManager.getTransaction().begin();
+            entityManager.merge(uneR);
+            entityManager.flush();
+            entityManager.getTransaction().commit();
+            entityManager.close();
 
-        borneList = (List<BorneEntity> ) entityManager.createQuery("SELECT b FROM BorneEntity b WHERE b.vehicule="+id).getResultList();
+        } catch (EntityNotFoundException h) {
+            new MonException("Erreur d'insertion", h.getMessage());
+        } catch (Exception e) {
+            new MonException("Erreur d'insertion", e.getMessage());
+        }
 
-        if(borneList.size() == 0 ) return null ;
+    }
 
-        return borneList.get(0);
+    public List<ReservationEntity> consulterReservations() throws MonException {
+
+        factory = Persistence.createEntityManagerFactory("PInscription");
+        entityManager = factory.createEntityManager();
+
+        List<ReservationEntity> mesRes = null;
+        mesRes = (List<ReservationEntity>)
+                entityManager.createQuery(
+                        "SELECT a FROM ReservationEntity a ").getResultList();
+        entityManager.close();
+
+        return mesRes;
     }
 
     public BorneEntity getBorneEntityById(int id){
@@ -80,24 +94,5 @@ public class ServiceReservation {
         if( list.size() == 0 ) return null;
 
         return list.get(0);
-
     }
-
-    public ClientEntity getClientById(int id){
-
-        factory = Persistence.createEntityManagerFactory("PInscription");
-        entityManager  = factory.createEntityManager();
-
-        List<ClientEntity> list;
-
-        list  = (List<ClientEntity>)  entityManager.createQuery("SELECT  v FROM ClientEntity  v WHERE v.id="+id).getResultList();
-
-        if( list.size() == 0 ) return null;
-
-        return list.get(0);
-
-    }
-
-
-
 }

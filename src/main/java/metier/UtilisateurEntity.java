@@ -1,9 +1,7 @@
 package metier;
 
 import javax.persistence.*;
-
 import java.util.Objects;
-
 
 @Entity
 @Table(name = "utilisateur", schema = "autolib", catalog = "")

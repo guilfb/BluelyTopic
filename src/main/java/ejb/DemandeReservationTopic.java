@@ -46,7 +46,7 @@ public class DemandeReservationTopic implements MessageListener {
     public void onMessage(Message message) {
         // TODO Auto-generated method stub
         boolean ok = false;
-        // On g�re le message r�cup�r� dans le topic
+        // On gère le message récupéré dans le topic
 
         if( message == null ) return ;
 
@@ -59,7 +59,6 @@ public class DemandeReservationTopic implements MessageListener {
             else if(objectMessage instanceof ClientEntity){
                 this.handleInscription(objectMessage);
             }
-
         }
         catch (JMSException jmse) {
             System.out.println(jmse.getMessage());

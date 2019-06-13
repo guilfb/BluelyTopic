@@ -18,6 +18,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import service.ServiceInscription;
 import service.ServiceReservation;
@@ -44,12 +45,6 @@ public class DemandeInscriptionTopic implements MessageListener {
                 Client client = new Client();
                 Reservation reservation = new Reservation();
                 Utilise utilise = new Utilise();
-
-                System.out.println("TESSSSSSSSSSSSST");
-                System.out.println(objectMessage);
-                System.out.println("object " + objectMessage.getObject());
-                System.out.println("object1 " + objectMessage.getObject().getClass());
-                System.out.println("object2 " + objectMessage.getObject().getClass().isInstance(utilise));
 
                 if(objectMessage.getObject().getClass().isInstance(reservation)){
                     this.handleReservetation(objectMessage);
@@ -86,6 +81,17 @@ public class DemandeInscriptionTopic implements MessageListener {
             uneReservationEntity.setVehicule(uneReservation.getVehicule().getIdVehicule());
 
             ServiceReservation uneE = new ServiceReservation();
+            List<ReservationEntity> listResa = uneE.consulterReservations();
+
+            if (listResa != null) {
+                for (ReservationEntity resa: listResa) {
+                    if (resa.getDateReservation().equals(uneReservationEntity.getDateReservation()) && uneReservationEntity.getClient() == resa.getClient()) {
+                        uneReservationEntity.setDateEcheance(uneReservation.getDateReservation());
+                        uneE.updateReservation(uneReservationEntity);
+                    }
+                }
+            }
+
             uneE.insertionReservation(uneReservationEntity);
         } catch (NamingException er) {
             EcritureErreur(er.getMessage());
